@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: ratu_report
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+      with:
+        php-version: '8.3.12'
+        extensions: mbstring, pdo, pdo_mysql, zip, bcmath
+        coverage: none
+
+    - name: Copy .env
+      run: cp .env.example .env
+
+    - name: Install Dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Generate Application Key
+      run: php artisan key:generate
+
+    - name: Set Directory Permissions
+      run: chmod -R 775 storage bootstrap/cache
+
+    - name: Wait for MySQL
+      run: sleep 15
+
+    - name: Run Migrations and Seed Database
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: laravel
+        DB_PASSWORD: password
+      run: php artisan migrate --seed
+
+    - name: Execute Tests (PHPUnit/Pest)
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: laravel
+        DB_PASSWORD: password
+      run: php artisan test
