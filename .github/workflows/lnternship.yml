@@ -70,14 +70,4 @@ jobs:
         DB_PASSWORD: root
       run: php artisan migrate 
 
-    - name: deploy vps
-      uses: appleboy/ssh-action@master
-      env:
-        ENV:  ${{ secrets.ENV }}
-      with:
-        host: ${{ secrets.IP }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        key: ${{ secrets.KEY}}
-        envs: ENV
-        script: | 
+    
