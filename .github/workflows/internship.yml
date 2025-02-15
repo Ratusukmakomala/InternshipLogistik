@@ -33,9 +33,6 @@ jobs:
         extensions: mbstring, pdo, pdo_mysql, zip, bcmath
         coverage: none
 
-    - name: Copy .env
-      run: cp .env.example .env
-
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -73,12 +70,12 @@ jobs:
     - name: Setup SSH Connection
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/ratu_key
+        chmod 600 ~/.ssh/ratu_key
         ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
     - name: Test SSH Connection
-      run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.IP }} "echo SSH sukses!"
+      run: ssh -i ~/.ssh/ratu_key -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.IP }} "echo SSH sukses!"
 
     - name: SSH and deploy app
       uses: appleboy/ssh-action@master
