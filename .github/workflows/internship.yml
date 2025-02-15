@@ -93,7 +93,7 @@ jobs:
         script: |
           cd /var/www/html/InternshipLogistik
           sudo git pull origin master
-          sudo chown -R www-data:www-data /var/www/html/InternshipLogistik
+          sudo chown -R ${{ secrets.USERNAME }}:${{ secrets.USERNAME }} /var/www/html/InternshipLogistik
           sudo chmod -R 775 /var/www/html/InternshipLogistik/storage
           sudo chmod -R 775 /var/www/html/InternshipLogistik/bootstrap/cache
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
