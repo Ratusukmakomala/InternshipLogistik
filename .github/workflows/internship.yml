@@ -32,13 +32,6 @@ jobs:
         php-version: '8.3.12'
         extensions: mbstring, pdo, pdo_mysql, zip, bcmath
         coverage: none
-        
-    - name: Setup SSH Connection
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
     - name: Copy .env
       run: cp .env.example .env
@@ -77,6 +70,16 @@ jobs:
         DB_PASSWORD: root
       run: php artisan migrate 
 
+    - name: Setup SSH Connection
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
+
+    - name: Test SSH Connection
+      run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo SSH sukses!"
+
     - name: SSH and deploy app
       uses: appleboy/ssh-action@master
       env:
@@ -94,10 +97,6 @@ jobs:
           sudo chmod -R 775 /var/www/html/InternshipLogistik/bootstrap/cache
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate
-          php artisan config:clear
-          php artisan cache:clear
-          php artisan route:clear
-          php artisan view:clear
           php artisan optimize
           sudo systemctl reload apache2
     
