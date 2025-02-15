@@ -37,11 +37,9 @@ jobs:
     - name: Copy .env
       run: cp .env.example .env
 
-    - name: Set Directory Permissions
-      run: | 
-          sudo chmod -R 775 storage bootstrap/cache
-          sudo chmod 777 .env
-          
+    - name: Set Directory Permissions (Pre-Key Generate)
+      run: chmod -R 777 storage bootstrap/cache
+
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -70,10 +68,12 @@ jobs:
         DB_PASSWORD: root
       run: php artisan migrate
 
-    - name: Clear Config Cache
-      run: | 
+    - name: Clear & Optimize Laravel
+      run: |
         php artisan config:clear
-        php artisan config:cache
+        php artisan cache:clear
+        php artisan route:clear
+        php artisan optimize
 
     - name: Setup SSH Connection
       run: |
@@ -85,7 +85,7 @@ jobs:
     - name: Test SSH Connection
       run: ssh -i ~/.ssh/ratu_key -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.IP }} "echo SSH sukses!"
 
-    - name: SSH and deploy app
+    - name: SSH and Deploy to VPS
       uses: appleboy/ssh-action@master
       env:
           ENV: ${{ secrets.ENV }}
@@ -97,16 +97,17 @@ jobs:
         script: |
           cd /var/www/html/InternshipLogistik
           sudo git pull origin master
-          cp .env.example .env
-          sudo chown -R www-data:www-data /var/www/html/InternshipLogistik/storage /var/www/html/InternshipLogistik/bootstrap/cache
-          sudo chmod -R 775 /var/www/html/InternshipLogistik/storage /var/www/html/InternshipLogistik/bootstrap/cache
-          sudo chmod 777 /var/www/html/InternshipLogistik/.env
+
+          sudo chown -R www-data:www-data storage bootstrap/cache
+          sudo chmod -R 775 storage bootstrap/cache
+          sudo chmod 777 .env
+
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-          php artisan key:generate
           php artisan migrate
-          php artisan route:clear
-          php artisan cache:clear
+
           php artisan config:clear
+          php artisan cache:clear
+          php artisan route:clear
           php artisan optimize
+
           sudo systemctl reload apache2
-    
