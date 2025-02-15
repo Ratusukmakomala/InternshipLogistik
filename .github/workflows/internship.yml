@@ -29,7 +29,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
-        php-version: '8.3.12'
+        php-version: '8.3'
         extensions: mbstring, pdo, pdo_mysql, zip, bcmath
         coverage: none
 
