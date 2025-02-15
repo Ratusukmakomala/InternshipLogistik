@@ -73,7 +73,7 @@ jobs:
     - name: Setup SSH Connection
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/ratu_key
+        echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/ratu_key
         chmod 600 ~/.ssh/ratu_key
         ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
