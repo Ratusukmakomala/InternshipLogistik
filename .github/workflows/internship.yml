@@ -92,7 +92,7 @@ jobs:
         envs: ENV
         script: |
           cd /var/www/html/InternshipLogistik
-          git pull origin master
+          sudo git pull origin master
           sudo chown -R www-data:www-data /var/www/html/InternshipLogistik
           sudo chmod -R 775 /var/www/html/InternshipLogistik/storage
           sudo chmod -R 775 /var/www/html/InternshipLogistik/bootstrap/cache
