@@ -49,7 +49,7 @@ jobs:
     - name: Generate Application Key
       run: php artisan key:generate
 
-    - name: Debug: Check .env Existence
+    - name: Check .env Existence
       run: ls -lah .env && cat .env | grep APP_KEY || echo ".env is missing!"
 
     - name: Wait for MySQL to be Ready
