@@ -90,7 +90,7 @@ jobs:
         script: |
           cd /var/www/html/InternshipLogistik
           sudo rm .env
-          echo "$ENV" > .env
+          printf "$ENV" >> .env
           
           sudo git pull origin master
           sudo chown -R www-data:www-data storage bootstrap/cache
