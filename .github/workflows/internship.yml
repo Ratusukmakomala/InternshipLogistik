@@ -63,7 +63,6 @@ jobs:
     - name: Create Database if Not Exists
       run: |
         mysql -h 103.127.97.47 -u ratu -p"Ratu123!@#" -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
-        CREATE DATABASE IF NOT EXISTS ratu_report;
         GRANT ALL PRIVILEGES ON ratu_report.* TO 'ratu'@'%';
         GRANT ALL PRIVILEGES ON ratu_report.* TO 'ratu'@'localhost';
         FLUSH PRIVILEGES;
