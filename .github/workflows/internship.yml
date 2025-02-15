@@ -38,7 +38,7 @@ jobs:
       run: cp .env.example .env
 
     - name: Set Directory Permissions (Pre-Key Generate)
-      run: chmod -R 777 storage bootstrap/cache
+      run: chmod -R 775 storage bootstrap/cache
 
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -87,13 +87,10 @@ jobs:
 
     - name: SSH and Deploy to VPS
       uses: appleboy/ssh-action@master
-      env:
-          ENV: ${{ secrets.ENV }}
       with:
         host: ${{ secrets.IP }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        envs: ENV
         script: |
           cd /var/www/html/InternshipLogistik
           sudo git pull origin master
