@@ -98,6 +98,9 @@ jobs:
           sudo chmod -R 775 /var/www/html/InternshipLogistik/storage /var/www/html/InternshipLogistik/bootstrap/cache
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate
+          php artisan route:clear
+          php artisan cache:clear
+          php artisan config:clear
           php artisan optimize
           sudo systemctl reload apache2
     
