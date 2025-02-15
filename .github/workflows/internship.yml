@@ -94,8 +94,8 @@ jobs:
           cd /var/www/html/InternshipLogistik
           sudo git pull origin master
           sudo chown -R www-data:www-data /var/www/html/InternshipLogistik
-          sudo chmod -R 775 /var/www/html/InternshipLogistik/storage
-          sudo chmod -R 775 /var/www/html/InternshipLogistik/bootstrap/cache
+          sudo chmod -R 777 /var/www/html/InternshipLogistik/storage
+          sudo chmod -R 777 /var/www/html/InternshipLogistik/bootstrap/cache
           sudo chmod 664 /var/www/html/InternshipLogistik/.env
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate
