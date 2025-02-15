@@ -32,6 +32,13 @@ jobs:
         php-version: '8.3.12'
         extensions: mbstring, pdo, pdo_mysql, zip, bcmath
         coverage: none
+        
+    - name: Setup SSH Connection
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
     - name: Copy .env
       run: cp .env.example .env
@@ -77,17 +84,20 @@ jobs:
       with:
         host: ${{ secrets.IP }}
         username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        key: ${{ secrets.SSH_KEY }}
         envs: ENV
         script: |
-          cd /var/www/html/report-ratu
+          cd /var/www/html/InternshipLogistik
           git pull origin master
-          sudo rm .env
-          printf "$ENV" >> .env
+          sudo chown -R www-data:www-data /var/www/html/InternshipLogistik
+          sudo chmod -R 775 /var/www/html/InternshipLogistik/storage
+          sudo chmod -R 775 /var/www/html/InternshipLogistik/bootstrap/cache
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate
-          php artisan optimize:clear
-          sudo chown -R www-data:www-data /var/www/report-ratu/storage
-          sudo chown -R www-data:www-data /var/www/report-ratu/bootstrap/cache
+          php artisan config:clear
+          php artisan cache:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan optimize
           sudo systemctl reload apache2
     
