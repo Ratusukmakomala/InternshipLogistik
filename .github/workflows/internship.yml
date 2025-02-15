@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI/CD
 
 on:
   push:
@@ -70,4 +70,19 @@ jobs:
         DB_PASSWORD: root
       run: php artisan migrate 
 
+    - name: SSH and deploy app
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.IP }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        script: |
+          cd /var/www/html/report-ratu
+          git pull origin master
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          php artisan migrate
+          php artisan optimize:clear
+          sudo chown -R www-data:www-data /var/www/report-ratu/storage
+          sudo chown -R www-data:www-data /var/www/report-ratu/bootstrap/cache
+          sudo systemctl reload apache2
     
