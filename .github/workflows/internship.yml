@@ -80,15 +80,17 @@ jobs:
 
     - name: SSH and Deploy to VPS
       uses: appleboy/ssh-action@master
+      env:
+        ENV: ${{ secrets.ENV }}
       with:
         host: ${{ secrets.IP }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
+        envs: ENV
         script: |
           cd /var/www/html/InternshipLogistik
-          
-          # Simpan .env dari GitHub Secrets
-          echo "${{ secrets.ENV }}" > .env
+          sudo rm .env
+          echo "$ENV" > .env
           
           sudo git pull origin master
           sudo chown -R www-data:www-data storage bootstrap/cache
