@@ -72,13 +72,18 @@ jobs:
 
     - name: SSH and deploy app
       uses: appleboy/ssh-action@master
+      env:
+          ENV: ${{ secrets.ENV }}
       with:
         host: ${{ secrets.IP }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
+        envs: ENV
         script: |
           cd /var/www/html/report-ratu
           git pull origin master
+          sudo rm .env
+          printf "$ENV" >> .env
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate
           php artisan optimize:clear
