@@ -78,7 +78,7 @@ jobs:
         ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
 
     - name: Test SSH Connection
-      run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo SSH sukses!"
+      run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.SSH_IP }} "echo SSH sukses!"
 
     - name: SSH and deploy app
       uses: appleboy/ssh-action@master
