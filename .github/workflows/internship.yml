@@ -62,7 +62,7 @@ jobs:
 
     - name: Create Database if Not Exists
       run: |
-        mysql -h 127.0.0.1 -u yaya -proot -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
+        mysql -h 127.0.0.1 -u yaya -proot --password=CRTcrt123 -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
 
     - name: Run Migrations And Seeders Database
       env:
