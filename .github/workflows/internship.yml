@@ -14,11 +14,11 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_DATABASE: ratu_report
-          MYSQL_ROOT_PASSWORD: CRTcrt123
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=yaya --password=CRTcrt123"
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -51,28 +51,6 @@ jobs:
 
     - name: Check .env Existence
       run: ls -lah .env && cat .env | grep APP_KEY || echo ".env is missing!"
-
-    - name: Wait for MySQL to be Ready
-      run: |
-        for i in {1..30}; do
-          mysqladmin ping -h 127.0.0.1 -u yaya --password=CRTcrt123 && break
-          echo "Waiting for MySQL..."
-          sleep 2
-        done
-
-    - name: Create Database if Not Exists
-      run: |
-        mysql -h 127.0.0.1 -u yaya -proot --password=CRTcrt123 -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
-
-    - name: Run Migrations And Seeders Database
-      env:
-        DB_CONNECTION: mysql
-        DB_HOST: 127.0.0.1
-        DB_PORT: 3306
-        DB_DATABASE: ratu_report
-        DB_USERNAME: yaya
-        DB_PASSWORD: CRTcrt123
-      run: php artisan migrate:fresh --seed
 
     - name: Setup SSH Connection
       run: |
