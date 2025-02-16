@@ -71,8 +71,7 @@ jobs:
         DB_PORT: 3306
         DB_DATABASE: ratu_report
         DB_USERNAME: root
-        DB_PASSWORD: root
-      run: php artisan migrate --seed
+      run: php artisan migrate:fresh --seed
 
     - name: Setup SSH Connection
       run: |
