@@ -14,11 +14,11 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_DATABASE: ratu_report
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: ""
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root"
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=''"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
