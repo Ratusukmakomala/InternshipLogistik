@@ -1,5 +1,4 @@
 name: CI/CD
-
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
 jobs:
   deploy-laravel-vps:
     runs-on: ubuntu-latest
-
     services:
       mysql:
         image: mysql:8.0
@@ -22,7 +20,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -64,7 +61,7 @@ jobs:
       run: |
         mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
 
-    - name: Run Migrations And Seeders Database
+    - name: Run Migration
       env:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
@@ -72,15 +69,77 @@ jobs:
         DB_DATABASE: ratu_report
         DB_USERNAME: root
         DB_PASSWORD: root
-        run: |
-          php artisan migrate:fresh
-          php artisan db:seed --class=RoleSeeder
-          php artisan db:seed --class=UserSeeder
-          php artisan db:seed --class=OfficeSeeder
-          php artisan db:seed --class=EmployeeSeeder
-          php artisan db:seed --class=CustomerSeeder
-          php artisan db:seed --class=SlaSeeder
-          php artisan db:seed --class=TransactionSeeder
+      run: php artisan migrate:fresh --force
+
+    - name: Run Role Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=RoleSeeder --force
+
+    - name: Run User Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=UserSeeder --force
+
+    - name: Run Office Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=OfficeSeeder --force
+
+    - name: Run Employee Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=EmployeeSeeder --force
+
+    - name: Run Customer Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=CustomerSeeder --force
+
+    - name: Run SLA Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=SlaSeeder --force
+
+    - name: Run Transaction Seeder
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ratu_report
+        DB_USERNAME: root
+        DB_PASSWORD: root
+      run: php artisan db:seed --class=TransactionSeeder --force
 
     - name: Setup SSH Connection
       run: |
@@ -100,19 +159,34 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           cd /var/www/html/InternshipLogistik
+          
+          # Fix permissions before git pull
           sudo chown -R ${{ secrets.USERNAME }}:www-data .
+          
           if [ ! -f .env ]; then
             cp .env.example .env
             php artisan key:generate
           fi
+          
+          # Pull latest changes
           sudo git pull origin master
+          
+          # Fix directory permissions
           sudo find . -type f -exec chmod 664 {} \;
           sudo find . -type d -exec chmod 775 {} \;
+          
+          # Set specific permissions for storage and bootstrap/cache
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
+          
+          # Set vendor directory permissions
           sudo chown -R ${{ secrets.USERNAME }}:www-data vendor
           sudo chmod -R 775 vendor
+          
+          # Install dependencies
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          
+          # Run migrations and seeders
           php artisan migrate:fresh --force
           php artisan db:seed --class=RoleSeeder --force
           php artisan db:seed --class=UserSeeder --force
@@ -121,11 +195,17 @@ jobs:
           php artisan db:seed --class=CustomerSeeder --force
           php artisan db:seed --class=SlaSeeder --force
           php artisan db:seed --class=TransactionSeeder --force
+          
+          # Clear caches
           php artisan config:clear
           php artisan cache:clear
           php artisan route:clear
-          php artisan optimize:clear  # Clear all caches first
+          php artisan optimize:clear
           php artisan optimize
+          
+          # Final permission adjustment
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
+          
+          # Reload Apache
           sudo systemctl reload apache2
