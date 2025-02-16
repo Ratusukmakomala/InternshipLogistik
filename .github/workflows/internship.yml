@@ -1,4 +1,5 @@
 name: CI/CD
+
 on:
   push:
     branches:
@@ -7,19 +8,17 @@ on:
 jobs:
   deploy-laravel-vps:
     runs-on: ubuntu-latest
+
     services:
       mysql:
         image: mysql:8.0
         env:
           MYSQL_DATABASE: ratu_report
-          MYSQL_USER: ratu
-          MYSQL_PASSWORD: Ratu123!@#
-          MYSQL_ROOT_PASSWORD: Ratu123!@#
-          MYSQL_ROOT_HOST: '%'
+          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
@@ -55,23 +54,24 @@ jobs:
 
     - name: Wait for MySQL to be Ready
       run: |
-        while ! mysqladmin ping -h"103.127.97.47" -P"3306" -u"ratu" -p"Ratu123!@#" --silent; do
-          sleep 1
+        for i in {1..30}; do
+          mysqladmin ping -h 127.0.0.1 -u root --password=root && break
           echo "Waiting for MySQL..."
+          sleep 2
         done
 
     - name: Create Database if Not Exists
       run: |
-        mysql -h 103.127.97.47 -u ratu -p"Ratu123!@#" -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
+        mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
 
     - name: Run Migrations 
       env:
         DB_CONNECTION: mysql
-        DB_HOST: 103.127.97.47
+        DB_HOST: 127.0.0.1
         DB_PORT: 3306
         DB_DATABASE: ratu_report
-        DB_USERNAME: ratu
-        DB_PASSWORD: Ratu123!@#
+        DB_USERNAME: root
+        DB_PASSWORD: root
       run: php artisan migrate
 
     - name: Setup SSH Connection
