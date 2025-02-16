@@ -62,7 +62,8 @@ jobs:
         mysql -h 47.236.157.2 -u kiwkiw -pkiwkiw -e "CREATE DATABASE IF NOT EXISTS ratu_report;"
 
     - name: Run Migration
-      env: ${{ secrets.DB_CON }}
+      env: 
+        db_con: ${{ secrets.DB_CON }}
       run: php artisan migrate:fresh --seed --force
 
     - name: Setup SSH Connection
