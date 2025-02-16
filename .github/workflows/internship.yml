@@ -99,8 +99,8 @@ jobs:
           sudo git pull origin master
           sudo chown -R www-data:www-data storage bootstrap/cache
           sudo chmod -R 775 storage bootstrap/cache
-          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-          php artisan migrate --seed --force
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+          php artisan migrate:fresh --seed --force
           php artisan config:clear
           php artisan cache:clear
           php artisan route:clear
